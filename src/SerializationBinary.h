@@ -63,7 +63,7 @@ namespace szon
 	}
 
 	template<typename T>
-	void SerializationBinary::SerializeArrayOfData(T* data, const int size, std::string_view path)
+	void SerializationBinary::SerializeArrayOfData(T* data, const int size, std::string_view path) 
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -93,7 +93,7 @@ namespace szon
 	}
 
 	template<>
-	void SerializationBinary::SerializeArrayOfData<std::string>(std::string* data, const int size, std::string_view path)
+	void SerializationBinary::SerializeArrayOfData<std::string>(std::string* data, const int size, std::string_view path) 
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -136,7 +136,7 @@ namespace szon
 	}
 
 	template<typename T>
-	void SerializationBinary::SerializeData(const T& data, std::string_view path)
+	void SerializationBinary::SerializeData(const T& data, std::string_view path) 
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
