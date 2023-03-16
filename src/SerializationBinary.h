@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _SERIALIZATION_BINARY_H_
+#define _SERIALIZATION_BINARY_H_
 
 #include<string>
 #include<string_view>
@@ -68,10 +70,14 @@ namespace szon
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
 		if (!m_fout.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
-		for (T* pArr = data; pArr < data + size; pArr++)
+		for (T* pArr = data; pArr < data + size; ++pArr)
+		{
 			m_fout.write(reinterpret_cast<const char*>(pArr), sizeof(T));
+		}
 
 		m_fout.close();
 	}
@@ -83,10 +89,14 @@ namespace szon
 		m_fin.seekg(m_current_position, std::ios_base::beg);
 
 		if (!m_fin.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
-		for (T* pArr = data; pArr < data + size; pArr++)
+		for (T* pArr = data; pArr < data + size; ++pArr)
+		{
 			m_fin.read(reinterpret_cast<char*>(pArr), sizeof(T));
+		}
 
 		m_current_position = m_fin.tellg();
 		m_fin.close();
@@ -98,9 +108,11 @@ namespace szon
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
 		if (!m_fout.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
-		for (std::string* pArr = data; pArr < data + size; pArr++)
+		for (std::string* pArr = data; pArr < data + size; ++pArr)
 		{
 			std::size_t data_lenght = (*pArr).length() + 1;
 
@@ -118,9 +130,11 @@ namespace szon
 		m_fin.seekg(m_current_position, std::ios_base::beg);
 
 		if (!m_fin.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
-		for (std::string* pArr = data; pArr < data + size; pArr++)
+		for (std::string* pArr = data; pArr < data + size; ++pArr)
 		{
 			std::size_t data_lenght;
 
@@ -141,7 +155,9 @@ namespace szon
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
 		if (!m_fout.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
 		m_fout.write(reinterpret_cast<const char*>(&data), sizeof(T));
 		m_fout.close();
@@ -154,7 +170,9 @@ namespace szon
 		m_fin.seekg(m_current_position, std::ios_base::beg);
 
 		if (!m_fin.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
 		m_fin.read(reinterpret_cast<char*>(&data), sizeof(T));
 		m_current_position = m_fin.tellg();
@@ -167,7 +185,9 @@ namespace szon
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
 		if (!m_fout.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
 		std::size_t data_lenght = data.length() + 1;
 
@@ -184,7 +204,9 @@ namespace szon
 		m_fin.seekg(m_current_position, std::ios_base::beg);
 
 		if (!m_fin.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
 		std::size_t data_lenght;
 
@@ -204,7 +226,9 @@ namespace szon
 		m_fin.seekg(NULL, std::ios_base::beg);
 
 		if (!m_fin.is_open())
+		{
 			throw std::exception("error opening the file");
+		}
 
 		bool result = m_fin.peek() == std::ifstream::traits_type::eof();
 		m_fin.close();
@@ -224,3 +248,4 @@ namespace szon
 #pragma endregion
 }
 
+#endif
