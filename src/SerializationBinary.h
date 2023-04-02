@@ -18,6 +18,8 @@ namespace szon
 
 		SerializationBinary(const SerializationBinary& other) = delete;
 
+#pragma region part with arrays
+		
 		template<typename T>
 		void SerializeArrayOfData(T* data, const int size, std::string_view path);
 
@@ -29,6 +31,16 @@ namespace szon
 
 		template<>
 		void DeserializeArrayOfData<std::string>(std::string* data, const int size, std::string_view path);
+
+		template<>
+		void SerializeArrayOfData<std::wstring>(std::wstring* data, const int size, std::string_view path);
+
+		template<>
+		void DeserializeArrayOfData<std::wstring>(std::wstring* data, const int size, std::string_view path);
+
+#pragma endregion
+
+#pragma region part with one data type
 
 		template<typename T>
 		void SerializeData(const T& data, std::string_view path);
@@ -42,17 +54,32 @@ namespace szon
 		template<>
 		void DeserializeData<std::string>(std::string& data, std::string_view path);
 
+		template<>
+		void SerializeData<std::wstring>(const std::wstring& data, std::string_view path);
+
+		template<>
+		void DeserializeData<std::wstring>(std::wstring& data, std::string_view path);
+
+#pragma endregion
+
+#pragma region other
+		
 		bool IsFileEmpty(std::string_view path);
 
 		void ResetFileReadPosition();
 
 		void ClearFile(std::string_view path);
 
+#pragma endregion
+
 	private:
-		unsigned long m_current_position;
+		std::uint64_t m_current_position;
 
 		std::ofstream m_fout;
 		std::ifstream m_fin;
+
+		std::wofstream m_wfout;
+		std::wifstream m_wfin;
 	};
 
 #pragma region Implementation
@@ -64,6 +91,8 @@ namespace szon
 		m_fout.exceptions(std::ofstream::badbit | std::ofstream::failbit);
 	}
 
+#pragma region part with arrays
+	
 	template<typename T>
 	void SerializationBinary::SerializeArrayOfData(T* data, const int size, std::string_view path) 
 	{
@@ -149,6 +178,57 @@ namespace szon
 		m_fin.close();
 	}
 
+	template<>
+	void SerializationBinary::SerializeArrayOfData<std::wstring>(std::wstring* data, const int size, std::string_view path)
+	{
+		m_wfout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
+
+		if (!m_wfout.is_open())
+		{
+			throw std::exception("error opening the file");
+		}
+
+		for (std::wstring* pArr = data; pArr < data + size; ++pArr)
+		{
+			std::size_t data_lenght = (*pArr).length() + 1;
+
+			m_wfout.write(reinterpret_cast<const wchar_t*>(&data_lenght), sizeof(data_lenght) / sizeof(wchar_t));
+			m_wfout.write(reinterpret_cast<const wchar_t*>((*pArr).c_str()), data_lenght);
+		}
+
+		m_wfout.close();
+	}
+
+	template<>
+	void SerializationBinary::DeserializeArrayOfData<std::wstring>(std::wstring* data, const int size, std::string_view path)
+	{
+		m_wfin.open(path.data(), std::ios::binary | std::ios::in);
+		m_wfin.seekg(m_current_position, std::ios_base::beg);
+
+		if (!m_wfin.is_open())
+		{
+			throw std::exception("error opening the file");
+		}
+
+		for (std::wstring* pArr = data; pArr < data + size; ++pArr)
+		{
+			std::size_t data_lenght;
+
+			m_wfin.read(reinterpret_cast<wchar_t*>(&data_lenght), sizeof(data_lenght) / sizeof(wchar_t));
+			auto buffer = std::make_unique<wchar_t[]>(data_lenght);
+
+			m_wfin.read(buffer.get(), data_lenght);
+			*pArr = buffer.get();
+		}
+
+		m_current_position = m_wfin.tellg();
+		m_wfin.close();
+	}
+
+#pragma endregion
+
+#pragma region part with one data type
+
 	template<typename T>
 	void SerializationBinary::SerializeData(const T& data, std::string_view path) 
 	{
@@ -220,6 +300,53 @@ namespace szon
 		m_fin.close();
 	}
 
+	template<>
+	void SerializationBinary::SerializeData<std::wstring>(const std::wstring& data, std::string_view path)
+	{
+		m_wfout.open(path.data(), std::ios::binary | std::ios::out | std::ios::app);
+
+		if (!m_wfout.is_open())
+		{
+			throw std::exception("error opening the file");
+		}
+
+		std::size_t data_lenght = data.length() + 1;
+
+		m_wfout.write(reinterpret_cast<const wchar_t*>(&data_lenght), sizeof(data_lenght) / sizeof(wchar_t));
+		m_wfout.write(reinterpret_cast<const wchar_t*>(data.c_str()), sizeof(data_lenght) / sizeof(wchar_t));
+
+		m_wfout.close();
+	}
+
+	template<>
+	void SerializationBinary::DeserializeData<std::wstring>(std::wstring& data, std::string_view path)
+	{
+		m_wfin.open(path.data(), std::ios::in | std::ios::binary);
+		m_wfin.seekg(m_current_position, std::ios_base::beg);
+
+		if (!m_wfin.is_open())
+		{
+			throw std::exception("error opening the file");
+		}
+
+		std::size_t data_lenght;
+
+		m_wfin.read(reinterpret_cast<wchar_t*>(&data_lenght), sizeof(data_lenght) / sizeof(wchar_t));
+		auto buffer = std::make_unique<wchar_t[]>(data_lenght);
+
+		m_wfin.read(buffer.get(), data_lenght);
+		data = buffer.get();
+
+		m_current_position = m_fin.tellg();
+		m_fin.close();
+
+		m_wfin.close();
+	}
+
+#pragma endregion
+
+#pragma region other
+
 	bool SerializationBinary::IsFileEmpty(std::string_view path)
 	{
 		m_fin.open(path.data(), std::ios::binary | std::ios::in);
@@ -244,6 +371,8 @@ namespace szon
 		m_fout.open(path.data(), std::ios::out | std::ios::trunc);
 		m_fout.close();
 	}
+
+#pragma endregion
 
 #pragma endregion
 }
