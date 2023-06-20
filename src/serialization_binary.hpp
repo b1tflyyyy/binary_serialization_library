@@ -23,25 +23,25 @@ namespace szon
 #pragma region part with arrays
 
 		template<typename T>
-		inline void serialize_array(T* data, const int size, std::string_view path);
+		inline void serialize_array(T* data, const int size, std::string_view path) const;
 
 		template<typename T>
 		inline void deserialize_array(T* data, const int size, std::string_view path);
 
 		template<>
-		inline void serialize_array<std::string>(std::string* data, const int size, std::string_view path);
+		inline void serialize_array<std::string>(std::string* data, const int size, std::string_view path) const;
 
 		template<>
 		inline void deserialize_array<std::string>(std::string* data, const int size, std::string_view path);
 
 		template<>
-		inline void serialize_array<std::wstring>(std::wstring* data, const int size, std::string_view path);
+		inline void serialize_array<std::wstring>(std::wstring* data, const int size, std::string_view path) const;
 
 		template<>
 		inline void deserialize_array<std::wstring>(std::wstring* data, const int size, std::string_view path);
 
 		template<>
-		inline void serialize_array<wchar_t>(wchar_t* data, const int size, std::string_view path);
+		inline void serialize_array<wchar_t>(wchar_t* data, const int size, std::string_view path) const;
 
 		template<>
 		inline void deserialize_array<wchar_t>(wchar_t* data, const int size, std::string_view path);
@@ -51,25 +51,25 @@ namespace szon
 #pragma region part with one data type
 
 		template<typename T>
-		inline void serialize_ot(const T& data, std::string_view path);
+		inline void serialize_ot(const T& data, std::string_view path) const;
 
 		template<typename T>
 		inline void deserialize_ot(T& data, std::string_view path);
 
 		template<>
-		inline void serialize_ot<std::string>(const std::string& data, std::string_view path);
+		inline void serialize_ot<std::string>(const std::string& data, std::string_view path) const;
 
 		template<>
 		inline void deserialize_ot<std::string>(std::string& data, std::string_view path);
 
 		template<>
-		inline void serialize_ot<std::wstring>(const std::wstring& data, std::string_view path);
+		inline void serialize_ot<std::wstring>(const std::wstring& data, std::string_view path) const;
 
 		template<>
 		inline void deserialize_ot<std::wstring>(std::wstring& data, std::string_view path);
 
 		template<>
-		inline void serialize_ot<wchar_t>(const wchar_t& data, std::string_view path);
+		inline void serialize_ot<wchar_t>(const wchar_t& data, std::string_view path) const;
 
 		template<>
 		inline void deserialize_ot<wchar_t>(wchar_t& data, std::string_view path);
@@ -78,7 +78,7 @@ namespace szon
 
 #pragma region other
 
-		inline bool is_file_empty(std::string_view path);
+		inline bool is_file_empty(std::string_view path) const;
 
 		inline void reset_file_read_position();
 
@@ -89,11 +89,11 @@ namespace szon
 	private:
 		std::uint64_t m_current_position;
 
-		std::ofstream m_fout;
-		std::ifstream m_fin;
+		mutable std::ofstream m_fout;
+		mutable std::ifstream m_fin;
 
-		std::wofstream m_wfout;
-		std::wifstream m_wfin;
+		mutable std::wofstream m_wfout;
+		mutable std::wifstream m_wfin;
 	};
 
 #pragma region Implementation
@@ -108,7 +108,7 @@ namespace szon
 #pragma region part with arrays
 
 	template<typename T>
-	inline void serialization_binary::serialize_array(T* data, const int size, std::string_view path)
+	inline void serialization_binary::serialize_array(T* data, const int size, std::string_view path) const
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -146,7 +146,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_array<std::string>(std::string* data, const int size, std::string_view path)
+	inline void serialization_binary::serialize_array<std::string>(std::string* data, const int size, std::string_view path) const
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -193,7 +193,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_array<std::wstring>(std::wstring* data, const int size, std::string_view path)
+	inline void serialization_binary::serialize_array<std::wstring>(std::wstring* data, const int size, std::string_view path) const
 	{
 		m_wfout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -240,7 +240,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_array<wchar_t>(wchar_t* data, const int size, std::string_view path)
+	inline void serialization_binary::serialize_array<wchar_t>(wchar_t* data, const int size, std::string_view path) const
 	{
 		m_wfout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -282,7 +282,7 @@ namespace szon
 #pragma region part with one data type
 
 	template<typename T>
-	inline void serialization_binary::serialize_ot(const T& data, std::string_view path)
+	inline void serialization_binary::serialize_ot(const T& data, std::string_view path) const
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -312,7 +312,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_ot<std::string>(const std::string& data, std::string_view path)
+	inline void serialization_binary::serialize_ot<std::string>(const std::string& data, std::string_view path) const
 	{
 		m_fout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -353,7 +353,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_ot<std::wstring>(const std::wstring& data, std::string_view path)
+	inline void serialization_binary::serialize_ot<std::wstring>(const std::wstring& data, std::string_view path) const
 	{
 		m_wfout.open(path.data(), std::ios::binary | std::ios::out | std::ios::app);
 
@@ -394,7 +394,7 @@ namespace szon
 	}
 
 	template<>
-	inline void serialization_binary::serialize_ot(const wchar_t& data, std::string_view path)
+	inline void serialization_binary::serialize_ot(const wchar_t& data, std::string_view path) const
 	{
 		m_wfout.open(path.data(), std::ios::binary | std::ios::app | std::ios::out);
 
@@ -427,7 +427,7 @@ namespace szon
 
 #pragma region other
 
-	inline bool serialization_binary::is_file_empty(std::string_view path)
+	inline bool serialization_binary::is_file_empty(std::string_view path) const
 	{
 		m_fin.open(path.data(), std::ios::binary | std::ios::in);
 		m_fin.seekg(NULL, std::ios_base::beg);
