@@ -12,7 +12,7 @@ namespace szon
 	class serialization_binary
 	{
 	public:
-		serialization_binary();
+		inline serialization_binary();
 
 		virtual ~serialization_binary() = default;
 
